@@ -10374,6 +10374,13 @@ public protocol RoomProtocol: AnyObject, Sendable {
     func encryptionState()  -> EncryptionState
     
     /**
+     * Fetch one global account-data event from the server through the SDK's
+     * authenticated client. This is the canonical post-write race
+     * reconciliation read; it exposes no token or arbitrary HTTP surface.
+     */
+    func fetchGlobalAccountDataRaw(eventType: String) async throws  -> String?
+    
+    /**
      * Return the current MSC4306 thread subscription for the given thread root
      * in this room.
      *
@@ -11355,6 +11362,27 @@ open func encryptionState() -> EncryptionState  {
             self.uniffiCloneHandle(),uniffiCallStatus
     )
 })
+}
+    
+    /**
+     * Fetch one global account-data event from the server through the SDK's
+     * authenticated client. This is the canonical post-write race
+     * reconciliation read; it exposes no token or arbitrary HTTP surface.
+     */
+open func fetchGlobalAccountDataRaw(eventType: String)async throws  -> String?  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_matrix_sdk_ffi_fn_method_room_fetch_global_account_data_raw(
+                        self.uniffiCloneHandle(),FfiConverterString.lower(eventType)
+                )
+            },
+            pollFunc: ffi_matrix_sdk_ffi_rust_future_poll_rust_buffer,
+            completeFunc: ffi_matrix_sdk_ffi_rust_future_complete_rust_buffer,
+            freeFunc: ffi_matrix_sdk_ffi_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterOptionString.lift,
+            errorHandler: FfiConverterTypeClientError_lift
+        )
 }
     
     /**
@@ -60750,6 +60778,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_matrix_sdk_ffi_checksum_method_room_encryption_state() != 7391) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_matrix_sdk_ffi_checksum_method_room_fetch_global_account_data_raw() != 45998) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_matrix_sdk_ffi_checksum_method_room_fetch_thread_subscription() != 32369) {

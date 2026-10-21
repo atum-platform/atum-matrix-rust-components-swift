@@ -1,18 +1,20 @@
 diff --git a/bindings/matrix-sdk-ffi/src/room/mod.rs b/bindings/matrix-sdk-ffi/src/room/mod.rs
-index c018a38..cb92b51 100644
+index c018a38..4e03b53 100644
 --- a/bindings/matrix-sdk-ffi/src/room/mod.rs
 +++ b/bindings/matrix-sdk-ffi/src/room/mod.rs
-@@ -38,7 +38,8 @@ use ruma::{
+@@ -37,8 +37,10 @@ use mime::Mime;
+ use ruma::{
      EventId, Int, OwnedDeviceId, OwnedRoomOrAliasId, OwnedServerName, OwnedUserId, RoomAliasId,
      ServerName, UserId, assign,
++    serde::Raw,
      events::{
 -        AnyMessageLikeEventContent, AnySyncTimelineEvent, StateEventType,
-+        AnyMessageLikeEventContent, AnySyncTimelineEvent, RoomAccountDataEventType,
-+        StateEventType,
++        AnyGlobalAccountDataEventContent, AnyMessageLikeEventContent, AnySyncTimelineEvent,
++        GlobalAccountDataEventType, RoomAccountDataEventType, StateEventType,
          receipt::ReceiptThread as RumaReceiptThread,
          relation::RelationType as RumaRelationType,
          room::{
-@@ -530,6 +531,22 @@ impl Room {
+@@ -530,6 +532,39 @@ impl Room {
          Ok(to_state_events(events))
      }
  
@@ -32,16 +34,47 @@ index c018a38..cb92b51 100644
 +        Ok(event.map(|raw| raw.json().get().to_owned()))
 +    }
 +
++    /// Fetch one global account-data event from the server through the SDK's
++    /// authenticated client. This is the canonical post-write race
++    /// reconciliation read; it exposes no token or arbitrary HTTP surface.
++    pub async fn fetch_global_account_data_raw(
++        &self,
++        event_type: String,
++    ) -> Result<Option<String>, ClientError> {
++        let event_type = GlobalAccountDataEventType::from(event_type);
++        let event = self
++            .inner
++            .client()
++            .account()
++            .fetch_account_data(event_type)
++            .await?;
++        Ok(raw_global_account_data_json(event))
++    }
++
      /// Subscribe to the room state events of the given type.
      ///
      /// The listener is called with the full current list of state events of
-@@ -2265,11 +2282,48 @@ impl TryFrom<SdkRoomSendQueueUpdate> for RoomSendQueueUpdate {
+@@ -2261,15 +2296,75 @@ impl TryFrom<SdkRoomSendQueueUpdate> for RoomSendQueueUpdate {
+     }
+ }
+ 
++fn raw_global_account_data_json(
++    event: Option<Raw<AnyGlobalAccountDataEventContent>>,
++) -> Option<String> {
++    event.map(|event| event.json().get().to_owned())
++}
++
+ #[cfg(all(test, not(target_family = "wasm")))]
  mod tests {
      use std::time::Duration;
  
 -    use matrix_sdk::{ruma::room_id, test_utils::mocks::MatrixMockServer};
 +    use matrix_sdk::{
-+        ruma::{events::AnyRoomAccountDataEvent, room_id, serde::Raw},
++        ruma::{
++            events::{AnyGlobalAccountDataEventContent, AnyRoomAccountDataEvent},
++            room_id,
++            serde::Raw,
++        },
 +        test_utils::mocks::MatrixMockServer,
 +    };
 +    use matrix_sdk_test::JoinedRoomBuilder;
@@ -50,6 +83,19 @@ index c018a38..cb92b51 100644
  
      use super::*;
  
++    #[test]
++    fn global_account_data_none_and_some_map_to_the_raw_json_boundary() {
++        assert_eq!(raw_global_account_data_json(None), None);
++        let event: Raw<AnyGlobalAccountDataEventContent> =
++            Raw::new(&json!({ "v": 1, "founder": "@founder:test" }))
++                .unwrap()
++                .cast_unchecked();
++        let raw = raw_global_account_data_json(Some(event)).unwrap();
++        let value: serde_json::Value = serde_json::from_str(&raw).unwrap();
++        assert_eq!(value["v"], 1);
++        assert_eq!(value["founder"], "@founder:test");
++    }
++
 +    #[tokio::test]
 +    async fn custom_room_account_data_is_read_from_cache_as_raw_json() {
 +        let server = MatrixMockServer::new().await;
@@ -86,7 +132,7 @@ index c018a38..cb92b51 100644
      ///
      /// Regression test: when `Room.inner` was `SdkRoom` (not wrapped in
 diff --git a/crates/matrix-sdk-ui/src/room_list_service/mod.rs b/crates/matrix-sdk-ui/src/room_list_service/mod.rs
-index 6dd1c6f..f7b70f6 100644
+index 6dd1c6f..05231af 100644
 --- a/crates/matrix-sdk-ui/src/room_list_service/mod.rs
 +++ b/crates/matrix-sdk-ui/src/room_list_service/mod.rs
 @@ -110,6 +110,21 @@ const DEFAULT_REQUIRED_STATE: &[(StateEventType, &str)] = &[
@@ -96,7 +142,7 @@ index 6dd1c6f..f7b70f6 100644
 +/// Atum's two owner-authored room markers. Keep this list exact: these are
 +/// cached read authorities for room classification, not a wildcard state
 +/// subscription.
-+const ATUM_REQUIRED_STATE: &[&str] = &["io.atum.conversation", "io.atum.app_bot.dm"];
++const ATUM_REQUIRED_STATE: &[&str] = &["io.atum.conversation", "io.atum.app_bot.dm", "io.atum.founder_chat"];
 +
 +fn default_required_state() -> Vec<(StateEventType, String)> {
 +    DEFAULT_REQUIRED_STATE
@@ -148,7 +194,7 @@ index 6dd1c6f..f7b70f6 100644
 +
 +    #[test]
 +    fn atum_required_state_is_exact_and_applies_to_subscriptions() {
-+        let expected = ["io.atum.conversation", "io.atum.app_bot.dm"];
++        let expected = ["io.atum.conversation", "io.atum.app_bot.dm", "io.atum.founder_chat"];
 +        let list = default_required_state();
 +        let subscription = room_subscription_settings().required_state;
 +
@@ -178,132 +224,146 @@ index 6dd1c6f..f7b70f6 100644
      #[async_test]
      async fn test_all_rooms_are_declared() -> Result<(), TestError> {
 diff --git a/crates/matrix-sdk-ui/tests/integration/room_list_service.rs b/crates/matrix-sdk-ui/tests/integration/room_list_service.rs
-index 1d5df53..a94b185 100644
+index 1d5df53..47b8153 100644
 --- a/crates/matrix-sdk-ui/tests/integration/room_list_service.rs
 +++ b/crates/matrix-sdk-ui/tests/integration/room_list_service.rs
-@@ -392,6 +392,8 @@ async fn test_sync_all_states() -> Result<(), Error> {
+@@ -392,6 +392,9 @@ async fn test_sync_all_states() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                      ],
                      "filters": {},
                      "timeline_limit": 1,
-@@ -2346,6 +2348,8 @@ async fn test_room_subscription() -> Result<(), Error> {
+@@ -2346,6 +2349,9 @@ async fn test_room_subscription() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -2390,6 +2394,8 @@ async fn test_room_subscription() -> Result<(), Error> {
+@@ -2390,6 +2396,9 @@ async fn test_room_subscription() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                      ],
                      "filters": {},
                      "timeline_limit": 1,
-@@ -2416,6 +2422,8 @@ async fn test_room_subscription() -> Result<(), Error> {
+@@ -2416,6 +2425,9 @@ async fn test_room_subscription() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -2461,6 +2469,8 @@ async fn test_room_subscription() -> Result<(), Error> {
+@@ -2461,6 +2473,9 @@ async fn test_room_subscription() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                      ],
                      "filters": {},
                      "timeline_limit": 1,
-@@ -2487,6 +2497,8 @@ async fn test_room_subscription() -> Result<(), Error> {
+@@ -2487,6 +2502,9 @@ async fn test_room_subscription() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -2511,6 +2523,8 @@ async fn test_room_subscription() -> Result<(), Error> {
+@@ -2511,6 +2529,9 @@ async fn test_room_subscription() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -2616,6 +2630,8 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
+@@ -2616,6 +2637,9 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                      ],
                      "filters": {},
                      "timeline_limit": 1,
-@@ -2642,6 +2658,8 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
+@@ -2642,6 +2666,9 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -2695,6 +2713,8 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
+@@ -2695,6 +2722,9 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                      ],
                      "filters": {},
                      "timeline_limit": 1,
-@@ -2721,6 +2741,8 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
+@@ -2721,6 +2751,9 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -2745,6 +2767,8 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
+@@ -2745,6 +2778,9 @@ async fn test_remove_and_reset_room_subscriptions() -> Result<(), Error> {
                          ["m.space.child", "*"],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                          ["m.room.pinned_events", ""],
                      ],
                      "timeline_limit": 20,
-@@ -3321,6 +3345,8 @@ async fn test_thread_subscriptions_extension_enabled_only_if_server_advertises_i
+@@ -3321,6 +3357,9 @@ async fn test_thread_subscriptions_extension_enabled_only_if_server_advertises_i
                              [ "m.space.child", "*", ],
                              ["org.matrix.msc3672.beacon_info", "*"],
                              ["org.matrix.msc1763.retention", ""],
 +                            ["io.atum.conversation", ""],
 +                            ["io.atum.app_bot.dm", ""],
++                            ["io.atum.founder_chat", ""],
                          ],
                          "timeline_limit": 1,
                      },
-@@ -3407,6 +3433,8 @@ async fn test_thread_subscriptions_extension_enabled_only_if_server_advertises_i
+@@ -3407,6 +3446,9 @@ async fn test_thread_subscriptions_extension_enabled_only_if_server_advertises_i
                          [ "m.space.child", "*", ],
                          ["org.matrix.msc3672.beacon_info", "*"],
                          ["org.matrix.msc1763.retention", ""],
 +                        ["io.atum.conversation", ""],
 +                        ["io.atum.app_bot.dm", ""],
++                        ["io.atum.founder_chat", ""],
                      ],
                      "timeline_limit": 1,
                  },
