@@ -13,8 +13,8 @@
   "license": "Apache-2.0",
   "licenseSHA256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
   "rustToolchain": "1.96.0",
-  "patch": "sdk/phone-26.10.15/atum-phone.patch",
-  "patchSHA256": "95f59c307870207e4f518a95dfc4786d935c5ef62599047d5997ae4aac23d708",
+  "patch": "sdk/phone-26.10.15-founder/atum-phone.patch",
+  "patchSHA256": "d7b68182ed249fbc27b0993eedd7390c389ad844a121172727d34284b9247694",
   "preimageSHA256": {
     "bindings/matrix-sdk-ffi/src/room/mod.rs": "51e051f7e96237fda4116757643e0684f37f56f3f620293827bd34816df20d7d",
     "crates/matrix-sdk-ui/src/room_list_service/mod.rs": "a640b115a2c66e330ef86a79d23a1ec4531d2eff1fe3be1632208f0269ea9f2c",
@@ -22,11 +22,16 @@
     "crates/matrix-sdk/src/error.rs": "3e926d4b5141ceabddb6a4591e2e07a387fde8972c67b2817f6222e257948796",
     "crates/matrix-sdk/tests/integration/send_queue.rs": "2fac4ad67353bc7fb53c4c3c562f83561c666e6db44bd6c8f1be1350e9a4422b"
   },
+  "scope": "Additive source-only Founder required-state and authoritative account-data fetch bridge; no selected distribution or app pin change in this commit.",
   "patchedSHA256": {
-    "bindings/matrix-sdk-ffi/src/room/mod.rs": "a99e0b968ed8f4b248f5653b2e6f1f448a3f9595c1fcc1ff18db505d4c6d84ba",
-    "crates/matrix-sdk-ui/src/room_list_service/mod.rs": "608fb530bdfd46714398b697c304c4a3a7831943088063f4446ee3e515e015c0",
-    "crates/matrix-sdk-ui/tests/integration/room_list_service.rs": "1c4770bf419cd77a8de29a2d3abfbf6a79836452f787accbb5636cc5c29882d7",
+    "bindings/matrix-sdk-ffi/src/room/mod.rs": "c501ffa98374656bfa63e9ca8175b33c32f92d25e60cce74185bc4fc6015ce6f",
+    "crates/matrix-sdk-ui/src/room_list_service/mod.rs": "043133e4a19d276ffd55d269d648b9be78cd62ac0f944587e752078df055e2e4",
+    "crates/matrix-sdk-ui/tests/integration/room_list_service.rs": "3882bbf0749df82705d0a0385de455b4b631c5fbabe9e879176a300da92ae18e",
     "crates/matrix-sdk/src/error.rs": "dcf374e1939916374a6cd197940b258d61f0b2137bb531d6d3e207dfac84ace3",
     "crates/matrix-sdk/tests/integration/send_queue.rs": "142c159f7bf2b2f3c86814cf67af4837445d837971c620ced1ac2b0faaa7d396"
+  },
+  "generatedFrom": {
+    "pendingManifestSHA256": "fbd8f21dfb3bcbfadf4b62cdfef5ef64f0ffef080918218f47cc507e1f98339b",
+    "upstreamRevision": "97a1589b70bd122c1d66e0d68ea008d8554076a5"
   }
 }

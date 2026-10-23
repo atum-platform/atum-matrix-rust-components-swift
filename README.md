@@ -16,6 +16,7 @@ use the upstream package.
 | Tag | Upstream release | Rust SDK revision | Platforms | XCFramework SHA-256 |
 | --- | --- | --- | --- | --- |
 | `26.10.15-atum.1` | `26.10.15` | `97a1589b70bd122c1d66e0d68ea008d8554076a5` | iOS 26 arm64 device + arm64 simulator | `aa109efa75a20d8cbb6097d83342680dd969e7d9b78050ab567077b0f25c8c84` |
+| `26.10.15-atum.2` | `26.10.15` | `97a1589b70bd122c1d66e0d68ea008d8554076a5` | iOS 26 arm64 device + arm64 simulator | `0367555a1b7a1f0e775037ba1db2b9d93320255eb4919bcf781b32d3a9ada9c2` |
 
 Releases are immutable: a fix ships as a new tag (`-atum.2`, …), never as a
 replaced asset.
@@ -23,7 +24,7 @@ replaced asset.
 ## Verify
 
 ```sh
-curl -LO https://github.com/atum-platform/atum-matrix-rust-components-swift/releases/download/26.10.15-atum.1/MatrixSDKFFI.xcframework.zip
+curl -LO https://github.com/atum-platform/atum-matrix-rust-components-swift/releases/download/26.10.15-atum.2/MatrixSDKFFI.xcframework.zip
 swift package compute-checksum MatrixSDKFFI.xcframework.zip   # must equal the checksum in Package.swift
 ```
 

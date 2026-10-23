@@ -16,8 +16,8 @@
     "license": "Apache-2.0",
     "licenseSHA256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
     "rustToolchain": "1.96.0",
-    "patch": "sdk/phone-26.10.15/atum-phone.patch",
-    "patchSHA256": "95f59c307870207e4f518a95dfc4786d935c5ef62599047d5997ae4aac23d708",
+    "patch": "sdk/phone-26.10.15-founder/atum-phone.patch",
+    "patchSHA256": "d7b68182ed249fbc27b0993eedd7390c389ad844a121172727d34284b9247694",
     "preimageSHA256": {
       "bindings/matrix-sdk-ffi/src/room/mod.rs": "51e051f7e96237fda4116757643e0684f37f56f3f620293827bd34816df20d7d",
       "crates/matrix-sdk-ui/src/room_list_service/mod.rs": "a640b115a2c66e330ef86a79d23a1ec4531d2eff1fe3be1632208f0269ea9f2c",
@@ -25,21 +25,25 @@
       "crates/matrix-sdk/src/error.rs": "3e926d4b5141ceabddb6a4591e2e07a387fde8972c67b2817f6222e257948796",
       "crates/matrix-sdk/tests/integration/send_queue.rs": "2fac4ad67353bc7fb53c4c3c562f83561c666e6db44bd6c8f1be1350e9a4422b"
     },
+    "scope": "Source preparation only; not compilation, runtime, code review, or gate acceptance",
     "patchedSHA256": {
-      "bindings/matrix-sdk-ffi/src/room/mod.rs": "a99e0b968ed8f4b248f5653b2e6f1f448a3f9595c1fcc1ff18db505d4c6d84ba",
-      "crates/matrix-sdk-ui/src/room_list_service/mod.rs": "608fb530bdfd46714398b697c304c4a3a7831943088063f4446ee3e515e015c0",
-      "crates/matrix-sdk-ui/tests/integration/room_list_service.rs": "1c4770bf419cd77a8de29a2d3abfbf6a79836452f787accbb5636cc5c29882d7",
+      "bindings/matrix-sdk-ffi/src/room/mod.rs": "c501ffa98374656bfa63e9ca8175b33c32f92d25e60cce74185bc4fc6015ce6f",
+      "crates/matrix-sdk-ui/src/room_list_service/mod.rs": "043133e4a19d276ffd55d269d648b9be78cd62ac0f944587e752078df055e2e4",
+      "crates/matrix-sdk-ui/tests/integration/room_list_service.rs": "3882bbf0749df82705d0a0385de455b4b631c5fbabe9e879176a300da92ae18e",
       "crates/matrix-sdk/src/error.rs": "dcf374e1939916374a6cd197940b258d61f0b2137bb531d6d3e207dfac84ace3",
       "crates/matrix-sdk/tests/integration/send_queue.rs": "142c159f7bf2b2f3c86814cf67af4837445d837971c620ced1ac2b0faaa7d396"
     },
+    "generatedFrom": {
+      "pendingManifestSHA256": "fbd8f21dfb3bcbfadf4b62cdfef5ef64f0ffef080918218f47cc507e1f98339b",
+      "upstreamRevision": "97a1589b70bd122c1d66e0d68ea008d8554076a5"
+    },
     "runtimeStatus": "SOURCE_PATCH_CANDIDATE_NOT_DISTRIBUTED",
-    "consumerRevision": "9d8442788268de903789cb635a6391368d822179",
+    "consumerRevision": "8e51ff6116655c80f5dff2207fe321acb78fab20",
     "consumerHasUncommittedChanges": false,
-    "sourceManifestSHA256": "c67638bf10a08b39cd38677dad79f8a6896944769392db94c268f66c19668c32",
-    "sourcePack": "phone-26.10.15",
-    "scope": "Source preparation only; not compilation, runtime, code review, or gate acceptance"
+    "sourceManifestSHA256": "37b6fe5f7b14bdb38fd477d0d615ccc5546115c34bc69a1bf5c866efa51dbf2e",
+    "sourcePack": "phone-26.10.15-founder"
   },
-  "sourcePack": "phone-26.10.15",
+  "sourcePack": "phone-26.10.15-founder",
   "targets": [
     "aarch64-apple-ios",
     "aarch64-apple-ios-sim"
@@ -56,9 +60,10 @@
   "iphoneSDKVersion": "27.0",
   "generatedSwift": {
     "path": "Sources/MatrixRustSDK/matrix_sdk_ffi.swift",
-    "sha256": "c263484499da9b52d8f98abef57d4b6599c4b0bf91955f4011901a5fc7770672",
+    "sha256": "65f8e32db590d01cef98049e2879f9037afa3c1a3e33de404329370325256eb2",
     "markers": [
       "func accountDataRaw(eventType:",
+      "func fetchGlobalAccountDataRaw(eventType:",
       "class Room"
     ]
   },
@@ -71,8 +76,8 @@
         "arm64"
       ],
       "library": "MatrixSDKFFI.xcframework/ios-arm64/libmatrix_sdk_ffi.a",
-      "librarySHA256": "4f77ce2d52e875c6b07d4193b1785fcbeda581fbac16650c4dc8842668775bee",
-      "exportedSymbolsSHA256": "51d83ac41780e6303a10ad45980d2e618d53c85fe25083dc38d2ab5a0232072d"
+      "librarySHA256": "35c407a5027cf784fd858438448c4b942d602d83d1adafad953efc7022f5a8f4",
+      "exportedSymbolsSHA256": "20b9be332130281fd6a8a4a364334a7be2b8b843252145da1acfc8eeb223f330"
     },
     {
       "identifier": "ios-arm64-simulator",
@@ -82,44 +87,44 @@
         "arm64"
       ],
       "library": "MatrixSDKFFI.xcframework/ios-arm64-simulator/libmatrix_sdk_ffi.a",
-      "librarySHA256": "ad95a5b71b3c76feb30c7d6d2c8dbba7539ab3d765003f4bd02be81d1333b45d",
-      "exportedSymbolsSHA256": "ea5564eae35bab3752753cfc1888c1f87df0e3d5d151633a9189b825e6939a46"
+      "librarySHA256": "02c515b6dd8233a3fbadc7f9b624946a9e7917f7ac0a77ac300b88fd6f3ef25e",
+      "exportedSymbolsSHA256": "f6d9e33079f9eeee67c15b67332d45f434405824e6fb5478023d08104c57c466"
     }
   ],
-  "zipSHA256": "aa109efa75a20d8cbb6097d83342680dd969e7d9b78050ab567077b0f25c8c84",
+  "zipSHA256": "0367555a1b7a1f0e775037ba1db2b9d93320255eb4919bcf781b32d3a9ada9c2",
   "artifactSHA256": {
     "LICENSE": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
-    "MatrixSDKFFI.xcframework/Info.plist": "4d933b500d45b5551d4211970bde8560dd57fd06c619ca67b3dd595f892dec4f",
+    "MatrixSDKFFI.xcframework/Info.plist": "bd17639ff3625d9dc0e99b7908c9540de1b13402cf31511ea0a97d3efb23d364",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdkFFI.h": "bfa73a44fbd901b9a1a919a58bf003ebeda38f666e223733e08ad3a47a7e6f20",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_baseFFI.h": "387c558d754b75bb98bc3f0905e5631db05a1666dc307e35de03ee115eaa44f6",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_commonFFI.h": "3a22d33577ae8f12eca3458b5a1bab4ed2469e41420975a17be05f341ac2f20c",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_contentscannerFFI.h": "0ce37456c773a99486e69d5af33933b93abca6e1ca70b7a23895a5b1fb7e63dd",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_cryptoFFI.h": "4821cdf9d356c98f211616feff4c506dae1b8c2238da4918c04ae34ecbf978de",
-    "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_ffiFFI.h": "848543cc10d00f2508fe43faa6d61f5807b0412788fbed9c31f9ec6639587f89",
+    "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_ffiFFI.h": "1e3b58da7034bb92d4b2993967cf3b59d9c8171c91a5adc6c98e07b9fcd59896",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_sqliteFFI.h": "2bc2a579dc1410136bb579ac115e191689a27cca54d3089ae10dcc14d4db2e47",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/matrix_sdk_uiFFI.h": "29dcb5e2708f164b2657ad02b9d4539de721b1e17919e0a93d5d3cce2dbae9ef",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/module.modulemap": "129370e9f5b2e29a8dcff5c3bd6f34f2723938c2faefd74c5abbf7ed3fc7d82d",
     "MatrixSDKFFI.xcframework/ios-arm64/Headers/MatrixSDKFFI/ruma_eventsFFI.h": "33ecaa3a2d17c3ec058983b5520143cf60c40a92a851a5c395c1f6f8f725ba2f",
-    "MatrixSDKFFI.xcframework/ios-arm64/libmatrix_sdk_ffi.a": "4f77ce2d52e875c6b07d4193b1785fcbeda581fbac16650c4dc8842668775bee",
+    "MatrixSDKFFI.xcframework/ios-arm64/libmatrix_sdk_ffi.a": "35c407a5027cf784fd858438448c4b942d602d83d1adafad953efc7022f5a8f4",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdkFFI.h": "bfa73a44fbd901b9a1a919a58bf003ebeda38f666e223733e08ad3a47a7e6f20",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_baseFFI.h": "387c558d754b75bb98bc3f0905e5631db05a1666dc307e35de03ee115eaa44f6",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_commonFFI.h": "3a22d33577ae8f12eca3458b5a1bab4ed2469e41420975a17be05f341ac2f20c",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_contentscannerFFI.h": "0ce37456c773a99486e69d5af33933b93abca6e1ca70b7a23895a5b1fb7e63dd",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_cryptoFFI.h": "4821cdf9d356c98f211616feff4c506dae1b8c2238da4918c04ae34ecbf978de",
-    "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_ffiFFI.h": "848543cc10d00f2508fe43faa6d61f5807b0412788fbed9c31f9ec6639587f89",
+    "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_ffiFFI.h": "1e3b58da7034bb92d4b2993967cf3b59d9c8171c91a5adc6c98e07b9fcd59896",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_sqliteFFI.h": "2bc2a579dc1410136bb579ac115e191689a27cca54d3089ae10dcc14d4db2e47",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/matrix_sdk_uiFFI.h": "29dcb5e2708f164b2657ad02b9d4539de721b1e17919e0a93d5d3cce2dbae9ef",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/module.modulemap": "129370e9f5b2e29a8dcff5c3bd6f34f2723938c2faefd74c5abbf7ed3fc7d82d",
     "MatrixSDKFFI.xcframework/ios-arm64-simulator/Headers/MatrixSDKFFI/ruma_eventsFFI.h": "33ecaa3a2d17c3ec058983b5520143cf60c40a92a851a5c395c1f6f8f725ba2f",
-    "MatrixSDKFFI.xcframework/ios-arm64-simulator/libmatrix_sdk_ffi.a": "ad95a5b71b3c76feb30c7d6d2c8dbba7539ab3d765003f4bd02be81d1333b45d",
-    "MatrixSDKFFI.xcframework.zip": "aa109efa75a20d8cbb6097d83342680dd969e7d9b78050ab567077b0f25c8c84",
+    "MatrixSDKFFI.xcframework/ios-arm64-simulator/libmatrix_sdk_ffi.a": "02c515b6dd8233a3fbadc7f9b624946a9e7917f7ac0a77ac300b88fd6f3ef25e",
+    "MatrixSDKFFI.xcframework.zip": "0367555a1b7a1f0e775037ba1db2b9d93320255eb4919bcf781b32d3a9ada9c2",
     "Package.swift": "7cd9cb172497f01ebf11cd09f22aaac8d7c8955b339a60ccde3441c274ca7e88",
     "Sources/MatrixRustSDK/matrix_sdk.swift": "630bf4cc8e529c67f48628769b233b01c3348f358f68054f243772ab40e942d3",
     "Sources/MatrixRustSDK/matrix_sdk_base.swift": "89dd8ec013e0d397071472e81990e65a74290d754fcb140c7a723a4e865da3c8",
     "Sources/MatrixRustSDK/matrix_sdk_common.swift": "0f6bf9e98bd74c8d178c4102046d1d0e1c3822d68331b5ce9e222433206781f4",
     "Sources/MatrixRustSDK/matrix_sdk_contentscanner.swift": "61acddd004bdac0fc6a496e806652491218fa2961f93ff33503ac26bee5bd5e5",
     "Sources/MatrixRustSDK/matrix_sdk_crypto.swift": "02b662f54e12ea618a856396e3aef749eac93706dc9d6af612d64deec1f68324",
-    "Sources/MatrixRustSDK/matrix_sdk_ffi.swift": "c263484499da9b52d8f98abef57d4b6599c4b0bf91955f4011901a5fc7770672",
+    "Sources/MatrixRustSDK/matrix_sdk_ffi.swift": "65f8e32db590d01cef98049e2879f9037afa3c1a3e33de404329370325256eb2",
     "Sources/MatrixRustSDK/matrix_sdk_sqlite.swift": "9d9f94afa6313dc2a62ba19b37bfb502bba0021146fbf0f3bb7118eaa6bf2cf1",
     "Sources/MatrixRustSDK/matrix_sdk_ui.swift": "e23c4e02c41d934016a8e998714340ef630d896fd8b004e7facf5423168db8d2",
     "Sources/MatrixRustSDK/ruma_events.swift": "e916f5df83a84e45a758738cbde941599ddec4f1314863e3cec174c8e5e5796c"
